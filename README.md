@@ -1,37 +1,81 @@
 # Slowly Changing Dimensions in Snowflake Using Streams and Tasks
 
-This project demonstrates the implementation of Slowly Changing Dimensions (SCD) in Snowflake using Snowpipe for automated data ingestion, Streams for capturing changes in staging data, and Tasks for processing and applying those changes to target tables.
-
-## Diagram
-Below is a visual representation of the pipeline:
-
-![Pipeline Diagram](SCD-PROJECT-STRUCTURE.PNG)
+A modern approach to implementing Slowly Changing Dimensions (SCD) in Snowflake, leveraging automated data pipelines and native Snowflake features for efficient change tracking and historical data management.
 
 ## Pipeline Overview
-- **Amazon S3**: Stores the incoming data files.
-- **Snowpipe**: Loads the data from S3 into Snowflake's staging tables automatically.
-- **Snowflake Stream**: Tracks changes (inserts, updates, deletes) in the staging table.
-- **Snowflake Tasks**: Automates the transformation and loading of changes into the final dimension tables.
+
+An end-to-end data pipeline that automatically captures and processes dimensional changes:
+
+1. **Data Source** → **S3** → **Snowflake Staging** → **Production Tables**
 
 ## Key Components
-- **S3**: Source for raw data files.
-- **Snowpipe**: Automated ingestion mechanism into Snowflake.
-- **Streams**: Tracks data changes for SCD implementation.
-- **Tasks**: Scheduled jobs for data processing.
-- **Snowflake Tables**: Target tables storing the dimension data.
 
-## Use Case
-This project is ideal for scenarios where data is continuously updated and Slowly Changing Dimensions (SCD) need to be tracked and managed in a data warehouse environment.
+### Data Ingestion Layer
+- **Amazon S3**: Landing zone for source files
+- **Snowpipe**: Real-time data ingestion service
+  - Automatically detects new files in S3
+  - Loads data into staging tables without manual intervention
 
-## Technologies Used
-- Amazon S3
-- Snowflake (Snowpipe, Streams, Tasks)
-- Docker
-- Apache NiFi
-- Jupyter Notebook
+### Change Detection Layer
+- **Snowflake Streams**: 
+  - Captures INSERT, UPDATE, DELETE operations
+  - Maintains change tracking metadata
+  - Enables efficient processing of incremental changes
 
-## How to Run
-1. Clone this repository.
-2. Set up your Snowflake environment.
-3. Use the provided scripts to configure Snowpipe, Streams, and Tasks.
-4. Run the pipeline to observe SCD behavior in Snowflake tables.
+### Processing Layer
+- **Snowflake Tasks**:
+  - Scheduled jobs for SCD processing
+  - Handles type 1 (overwrite) and type 2 (historical) changes
+  - Maintains referential integrity
+
+### Storage Layer
+- **Staging Tables**: Temporary landing zone for raw data
+- **Dimension Tables**: Final tables with historical tracking
+  - Includes effective dates
+  - Maintains current and historical records
+  - Supports point-in-time analysis
+
+## Use Cases
+
+Ideal for:
+- Customer dimension management
+- Product catalog versioning
+- Employee data tracking
+- Any dimension requiring historical change tracking
+
+## Technical Stack
+
+Required components:
+- Snowflake Enterprise Edition
+- Amazon S3 bucket
+- Docker (for local development)
+- Apache NiFi (optional, for additional data routing)
+- Jupyter Notebook (for testing and validation)
+
+## Architecture Diagram
+![Untitled Diagram](https://github.com/user-attachments/assets/dcddb7a7-8269-4942-aa24-54ec18e03da2)
+
+
+## Implementation Steps
+
+1. **Environment Setup**
+   ```sql
+   -- Create required databases and schemas
+   CREATE DATABASE scd_demo;
+   USE DATABASE scd_demo;
+   ```
+
+2. **Configure Integrations**
+   - Set up S3 integration
+   - Configure Snowpipe
+   - Create necessary roles and permissions
+
+3. **Deploy Components**
+   - Initialize staging tables
+   - Create streams on staging tables
+   - Configure and schedule tasks
+
+4. **Monitor and Maintain**
+   - Track task execution
+   - Monitor data quality
+   - Manage historical storage
